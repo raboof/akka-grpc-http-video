@@ -68,7 +68,7 @@ And the gRPC service on the same port also still runs:
 
 ```
 $ grpcurl -d '{"name": "foo"}' -plaintext \
-    -import-path /home/aengelen/dev/akka-grpc-http-interop/src/main/protobuf \
+    -import-path /home/aengelen/dev/akka-grpc-http-video/src/main/protobuf \
     -proto ticker.proto \
     localhost:8080 ticker.TickerService.MonitorSymbol
 {
@@ -99,7 +99,7 @@ Now grpcurl without a token no longer works:
 
 ```
 $ grpcurl -d '{"name": "foo"}' -plaintext \
-    -import-path /home/aengelen/dev/akka-grpc-http-interop/src/main/protobuf \
+    -import-path /home/aengelen/dev/akka-grpc-http-video/src/main/protobuf \
     -proto ticker.proto \
     localhost:8080 ticker.TickerService.MonitorSymbol
 ```
@@ -107,7 +107,7 @@ But with does:
 ```
 $ grpcurl -rpc-header "Token: XYZ" \
     -d '{"name": "foo"}' -plaintext \
-    -import-path /home/aengelen/dev/akka-grpc-http-interop/src/main/protobuf \
+    -import-path /home/aengelen/dev/akka-grpc-http-video/src/main/protobuf \
     -proto ticker.proto \
     localhost:8080 ticker.TickerService.MonitorSymbol
 {
@@ -125,7 +125,7 @@ $ grpcurl -rpc-header "Token: XYZ" \
 
 ### Links
 
-* [https://github.com/raboof/akka-grpc-http-interop](https://github.com/raboof/akka-grpc-http-interop)
+* [https://github.com/raboof/akka-grpc-http-video](https://github.com/raboof/akka-grpc-http-video)
 * [https://doc.akka.io/docs/akka](https://doc.akka.io/docs/akka)
 * [https://doc.akka.io/docs/akka-grpc](https://doc.akka.io/docs/akka-grpc)
 * [https://www.lightbend.com/videos-and-webinars](https://www.lightbend.com/videos-and-webinars)
