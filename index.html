@@ -65,7 +65,7 @@ Psst, please use token XYZ!
 </code></pre>
 <p>And the gRPC service on the same port also still runs:</p>
 <pre><code>$ grpcurl -d &#39;{&quot;name&quot;: &quot;foo&quot;}&#39; -plaintext \
-    -import-path /home/aengelen/dev/akka-grpc-http-interop/src/main/protobuf \
+    -import-path /home/aengelen/dev/akka-grpc-http-video/src/main/protobuf \
     -proto ticker.proto \
     localhost:8080 ticker.TickerService.MonitorSymbol
 {
@@ -90,14 +90,14 @@ Psst, please use token XYZ!
 )</code></pre></section><section>
 <p>Now grpcurl without a token no longer works:</p>
 <pre><code>$ grpcurl -d &#39;{&quot;name&quot;: &quot;foo&quot;}&#39; -plaintext \
-    -import-path /home/aengelen/dev/akka-grpc-http-interop/src/main/protobuf \
+    -import-path /home/aengelen/dev/akka-grpc-http-video/src/main/protobuf \
     -proto ticker.proto \
     localhost:8080 ticker.TickerService.MonitorSymbol
 </code></pre>
 <p>But with does:</p>
 <pre><code>$ grpcurl -rpc-header &quot;Token: XYZ&quot; \
     -d &#39;{&quot;name&quot;: &quot;foo&quot;}&#39; -plaintext \
-    -import-path /home/aengelen/dev/akka-grpc-http-interop/src/main/protobuf \
+    -import-path /home/aengelen/dev/akka-grpc-http-video/src/main/protobuf \
     -proto ticker.proto \
     localhost:8080 ticker.TickerService.MonitorSymbol
 {
@@ -110,7 +110,7 @@ Psst, please use token XYZ!
 </code></pre></section><section data-background-image="./front-bg.svg" data-background-color="#15a8ce">
 <h3><a href="#links" name="links" class="anchor"><span class="anchor-link"></span></a>Links</h3>
 <ul>
-  <li><a href="https://github.com/raboof/akka-grpc-http-interop">https://github.com/raboof/akka-grpc-http-interop</a></li>
+  <li><a href="https://github.com/raboof/akka-grpc-http-video">https://github.com/raboof/akka-grpc-http-video</a></li>
   <li><a href="https://doc.akka.io/docs/akka">https://doc.akka.io/docs/akka</a></li>
   <li><a href="https://doc.akka.io/docs/akka-grpc">https://doc.akka.io/docs/akka-grpc</a></li>
   <li><a href="https://www.lightbend.com/videos-and-webinars">https://www.lightbend.com/videos-and-webinars</a></li>
