@@ -77,10 +77,6 @@ $ grpcurl -d '{"name": "foo"}' -plaintext \
 }
 {
   "name": "foo",
-  "value": -341515636
-}
-{
-  "name": "foo",
 ...
 ```
 
@@ -117,10 +113,6 @@ $ grpcurl -rpc-header "Token: XYZ" \
 {
   "name": "foo",
   "value": -1725700895
-}
-{
-  "name": "foo",
-  "value": -341515636
 }
 {
   "name": "foo",
