@@ -1,0 +1,152 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+
+<title> Akka HTTP + gRPC interop</title>
+
+<link rel="stylesheet" href="css/reveal.css">
+<link rel="stylesheet" href="css/extra.css">
+<link rel="stylesheet" href="css/theme/akka.css">
+
+<!-- Theme used for syntax highlighting of code -->
+<link rel="stylesheet" href="lib/css/zenburn.css">
+
+<!-- Printing and PDF exports -->
+<script>
+var link = document.createElement( 'link' );
+link.rel = 'stylesheet';
+link.type = 'text/css';
+link.href = window.location.search.match( /print-pdf/gi ) ? 'css/print/pdf.css' : 'css/print/paper.css';
+document.getElementsByTagName( 'head' )[0].appendChild( link );
+</script>
+</head>
+<body>
+
+
+<div class="reveal">
+<div class="slides">
+<section data-background-image="./front-bg.svg" data-background-color="#15a8ce">
+<h3><a href="#akka-http-grpc-interop" name="akka-http-grpc-interop" class="anchor"><span class="anchor-link"></span></a><img src="./akka-reverse.svg" /> Akka HTTP + gRPC interop</h3>
+<h4><a href="#arnout-engelen" name="arnout-engelen" class="anchor"><span class="anchor-link"></span></a>Arnout Engelen</h4>
+<p><img src="images/lightbend-color-reverse.svg" alt="lightbend-title" /></p></section><section>
+<ul>
+  <li><a href="https://github.com/raboof/akka-grpc-intro-video">https://github.com/raboof/akka-grpc-intro-video</a></li>
+  <li><a href="https://github.com/raboof/akka-grpc-http-video">https://github.com/raboof/akka-grpc-http-video</a></li>
+</ul></section><section><section>
+<img src="images/path-grpc-only.svg"></section><section>
+<img src="images/paths-with-login-and.svg"></section><section>
+<img src="images/paths-with-login-and-auth.svg"></section></section><section>
+<p>Plain gRPC:</p>
+<pre class="prettyprint"><code class="language-scala">object Main extends App {
+    implicit val system = ActorSystem(&quot;ticker&quot;)
+
+    Http().bindAndHandleAsync(
+       TickerServiceHandler(new TickerServiceImpl),
+        &quot;127.0.0.1&quot;,
+        8080
+    )
+}</code></pre></section><section>
+<p>Authentication route:</p>
+<pre class="prettyprint"><code class="language-scala">val authenticationRoute: Route = path(&quot;login&quot;) {
+  get {
+    complete(&quot;Psst, please use token XYZ!&quot;)
+  }
+}</code></pre>
+<pre class="prettyprint"><code class="language-scala">val concatenated =
+  concat(
+    authenticationRoute,
+    handle(TickerServiceHandler(new TickerServiceImpl))
+  )</code></pre></section><section>
+<p>The new login endpoint works:</p>
+<pre><code>$ curl localhost:8080/login
+Psst, please use token XYZ!
+</code></pre>
+<p>And the gRPC service on the same port also still runs:</p>
+<pre><code>$ grpcurl -d &#39;{&quot;name&quot;: &quot;foo&quot;}&#39; -plaintext \
+    -import-path /home/aengelen/dev/akka-grpc-http-interop/src/main/protobuf \
+    -proto ticker.proto \
+    localhost:8080 ticker.TickerService.MonitorSymbol
+{
+  &quot;name&quot;: &quot;foo&quot;,
+  &quot;value&quot;: -1725700895
+}
+{
+  &quot;name&quot;: &quot;foo&quot;,
+  &quot;value&quot;: -341515636
+}
+{
+  &quot;name&quot;: &quot;foo&quot;,
+...
+</code></pre></section><section>
+<p>Authorization directive:</p>
+<pre class="prettyprint"><code class="language-scala">val authorizationDirective: Directive0 =
+  headerValueByName(&quot;token&quot;).flatMap { token =&gt;
+    if (token == &quot;XYZ&quot;) pass
+    else reject
+  }</code></pre>
+<pre class="prettyprint"><code class="language-scala">val combined = concat(
+  authenticationRoute,
+  authorizationDirective {
+    handle(TickerServiceHandler(new TickerServiceImpl))
+  }
+)</code></pre></section><section>
+<p>Now grpcurl without a token no longer works:</p>
+<pre><code>$ grpcurl -d &#39;{&quot;name&quot;: &quot;foo&quot;}&#39; -plaintext \
+    -import-path /home/aengelen/dev/akka-grpc-http-interop/src/main/protobuf \
+    -proto ticker.proto \
+    localhost:8080 ticker.TickerService.MonitorSymbol
+</code></pre>
+<p>But with does:</p>
+<pre><code>$ grpcurl -rpc-header &quot;Token: XYZ&quot; \
+    -d &#39;{&quot;name&quot;: &quot;foo&quot;}&#39; -plaintext \
+    -import-path /home/aengelen/dev/akka-grpc-http-interop/src/main/protobuf \
+    -proto ticker.proto \
+    localhost:8080 ticker.TickerService.MonitorSymbol
+{
+  &quot;name&quot;: &quot;foo&quot;,
+  &quot;value&quot;: -1725700895
+}
+{
+  &quot;name&quot;: &quot;foo&quot;,
+  &quot;value&quot;: -341515636
+}
+{
+  &quot;name&quot;: &quot;foo&quot;,
+...
+</code></pre></section><section data-background-image="./front-bg.svg" data-background-color="#15a8ce">
+<h3><a href="#links" name="links" class="anchor"><span class="anchor-link"></span></a>Links</h3>
+<ul>
+  <li><a href="https://github.com/raboof/akka-grpc-http-interop">https://github.com/raboof/akka-grpc-http-interop</a></li>
+  <li><a href="https://doc.akka.io/docs/akka">https://doc.akka.io/docs/akka</a></li>
+  <li><a href="https://doc.akka.io/docs/akka-grpc">https://doc.akka.io/docs/akka-grpc</a></li>
+  <li><a href="https://www.lightbend.com/videos-and-webinars">https://www.lightbend.com/videos-and-webinars</a></li>
+  <li><a href="https://discuss.akka.io">https://discuss.akka.io/</a></li>
+</ul>
+<p><img src="./images/lightbend-color-reverse.svg" alt="lightbend-title" /></p>
+<p><aside class="notes">  That concludes today&rsquo;s video. </aside></p></section>
+</div>
+</div>
+
+<script src="lib/js/head.min.js"></script>
+<script src="js/reveal.js"></script>
+
+<script>
+// More info about config & dependencies:
+// - https://github.com/hakimel/reveal.js#configuration
+// - https://github.com/hakimel/reveal.js#dependencies
+Reveal.initialize({
+history: true,
+slideNumber: true,
+dependencies: [
+{ src: 'plugin/markdown/marked.js' },
+{ src: 'plugin/markdown/markdown.js' },
+{ src: 'plugin/notes/notes.js', async: true },
+{ src: 'plugin/highlight/highlight.js', async: true, callback: function() { hljs.initHighlightingOnLoad(); } }
+]
+});
+</script>
+<div class="footer" style="position: absolute; width: 100%; bottom: 0px; padding: 1.2em; background-image: url(lightbend-reverse.svg); height: 3em; background-color: #15a9ce; background-repeat: no-repeat; background-origin: content-box"></div>
+</body>
+</html>
