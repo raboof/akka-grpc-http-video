@@ -103,7 +103,7 @@ $ grpcurl -d '{"name": "foo"}' -plaintext \
     -proto ticker.proto \
     localhost:8080 ticker.TickerService.MonitorSymbol
 ```
-But with does:
+But with a token it does:
 ```
 $ grpcurl -rpc-header "Token: XYZ" \
     -d '{"name": "foo"}' -plaintext \
