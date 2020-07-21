@@ -94,7 +94,7 @@ Psst, please use token XYZ!
     -proto ticker.proto \
     localhost:8080 ticker.TickerService.MonitorSymbol
 </code></pre>
-<p>But with does:</p>
+<p>But with a token it does:</p>
 <pre><code>$ grpcurl -rpc-header &quot;Token: XYZ&quot; \
     -d &#39;{&quot;name&quot;: &quot;foo&quot;}&#39; -plaintext \
     -import-path /home/aengelen/dev/akka-grpc-http-video/src/main/protobuf \
