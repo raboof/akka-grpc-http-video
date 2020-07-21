@@ -1,6 +1,6 @@
 @@@section { data-background-color="#15a8ce" data-background-image="./front-bg.svg" }
 
-### ![](./akka-reverse.svg) Introduction: Akka gRPC
+### ![](./akka-reverse.svg) Akka HTTP + gRPC interop
 
 #### Arnout Engelen
 
@@ -10,131 +10,108 @@
 
 @@@section
 
-1. Introduction
-1. Building a server
-
-https://github.com/raboof/akka-grpc-intro-video
+* https://github.com/raboof/akka-grpc-intro-video
+* https://github.com/raboof/akka-grpc-http-video
 
 @@@
 
 @@@section
 
-## What is gRPC?
+@@@@section
 
-@@@ 
+<img src="images/path-grpc-only.svg">
 
-@@@section
+@@@@
 
-## What is gRPC?
+@@@@section
 
-### SOAP
-### REST
-### gRPC
+<img src="images/paths-with-login-and.svg">
 
-@@@
+@@@@
 
-@@@section
+@@@@section
 
-## What is gRPC?
+<img src="images/paths-with-login-and-auth.svg">
 
-### SOAP - XML
-### REST - JSON
-### gRPC - Protobuf
+@@@@
 
 @@@
 
 @@@section
 
-<div>
-<img src="images/lightbend-full-color.svg" width=500px>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;      <img src="images/Google_2015_logo.svg">
-</div>
+Plain gRPC:
 
-![CNCF](images/cncf-horizontal-color.png)
+@@snip[Main.scala](/src/main/scala/Main.scala) { #plain-grpc }
 
 @@@
 
 @@@section
 
-# Demo
+Authentication route:
 
-## 'stock ticker' API
+@@snip[Main.scala](/src/main/scala/Main.scala) { #authenticationRoute }
 
-receiving a stream of stock ticker values for a symbol
-
-@@@
-
-@@@section
-
-gRPC is typically used contract-first:
-
-@@snip[ticker.proto](/src/main/protobuf/ticker.proto)
+@@snip[Main.scala](/src/main/scala/Main.scala) { #combine-without-authorization }
 
 @@@
 
 @@@section
 
-Akka gRPC 
-
-Add the plugin to your build:
-
-@@snip[plugins.sbt](/project/plugins.sbt) { #plugin }
-
-And build the project:
+The new login endpoint works:
 
 ```
-$ sbt compile
+$ curl localhost:8080/login
+Psst, please use token XYZ!
 ```
 
-To generate API classes:
-
-```
-$ find target/scala-2.13/src_managed | grep TickerService
-target/scala-2.13/src_managed/main/ticker/TickerServiceHandler.scala
-target/scala-2.13/src_managed/main/ticker/TickerService.scala
-```
-
-@@@
-
-@@@section
-
-The generated API looks like this:
-
-```scala
-trait TickerService {
-  
-  /**
-   * Monitor a symbol
-   */
-  def monitorSymbol(in: Symbol): Source[Value, NotUsed]
-  
-}
-```
-
-@@@
-
-@@@section
-
-We implement it:
-
-@@snip[TickerServiceImpl.scala](/src/main/scala/TickerServiceImpl.scala) { #impl }
-
-@@@
-
-@@@section
-
-And embed it in a simple [Akka HTTP](https://doc.akka.io/docs/akka-http) server:
-
-@@snip[Main.scala](/src/main/scala/Main.scala) { #main }
-
-@@@
-
-@@@section
-
-You can now connect to the service:
+And the gRPC service on the same port also still runs:
 
 ```
 $ grpcurl -d '{"name": "foo"}' -plaintext \
-    -import-path /home/aengelen/dev/akka-grpc-intro-video/src/main/protobuf \
+    -import-path /home/aengelen/dev/akka-grpc-http-interop/src/main/protobuf \
+    -proto ticker.proto \
+    localhost:8080 ticker.TickerService.MonitorSymbol
+{
+  "name": "foo",
+  "value": -1725700895
+}
+{
+  "name": "foo",
+  "value": -341515636
+}
+{
+  "name": "foo",
+...
+```
+
+@@@
+
+
+@@@section
+
+Authorization directive:
+
+@@snip[Main.scala](/src/main/scala/Main.scala) { #authorizationDirective }
+
+@@snip[Main.scala](/src/main/scala/Main.scala) { #combined }
+
+@@@
+
+@@@section
+
+Now grpcurl without a token no longer works:
+
+```
+$ grpcurl -d '{"name": "foo"}' -plaintext \
+    -import-path /home/aengelen/dev/akka-grpc-http-interop/src/main/protobuf \
+    -proto ticker.proto \
+    localhost:8080 ticker.TickerService.MonitorSymbol
+```
+But with does:
+```
+$ grpcurl -rpc-header "Token: XYZ" \
+    -d '{"name": "foo"}' -plaintext \
+    -import-path /home/aengelen/dev/akka-grpc-http-interop/src/main/protobuf \
     -proto ticker.proto \
     localhost:8080 ticker.TickerService.MonitorSymbol
 {
@@ -156,7 +133,7 @@ $ grpcurl -d '{"name": "foo"}' -plaintext \
 
 ### Links
 
-* [https://github.com/raboof/akka-grpc-intro-video](https://github.com/raboof/akka-grpc-intro-video)
+* [https://github.com/raboof/akka-grpc-http-interop](https://github.com/raboof/akka-grpc-http-interop)
 * [https://doc.akka.io/docs/akka](https://doc.akka.io/docs/akka)
 * [https://doc.akka.io/docs/akka-grpc](https://doc.akka.io/docs/akka-grpc)
 * [https://www.lightbend.com/videos-and-webinars](https://www.lightbend.com/videos-and-webinars)
