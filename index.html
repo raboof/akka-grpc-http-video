@@ -39,14 +39,11 @@ document.getElementsByTagName( 'head' )[0].appendChild( link );
 <img src="images/paths-with-login-and.svg"></section><section>
 <img src="images/paths-with-login-and-auth.svg"></section></section><section>
 <p>Plain gRPC:</p>
-<pre class="prettyprint"><code class="language-scala">object Main extends App {
+<pre class="prettyprint"><code class="language-scala">object PlainMain extends App {
     implicit val system = ActorSystem(&quot;ticker&quot;)
 
-    Http().bindAndHandleAsync(
-       TickerServiceHandler(new TickerServiceImpl),
-        &quot;127.0.0.1&quot;,
-        8080
-    )
+    Http().newServerAt(&quot;127.0.0.1&quot;, 8080)
+      .bind(TickerServiceHandler(new TickerServiceImpl))
 }</code></pre></section><section>
 <p>Authentication route:</p>
 <pre class="prettyprint"><code class="language-scala">val authenticationRoute: Route = path(&quot;login&quot;) {
