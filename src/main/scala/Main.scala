@@ -7,6 +7,7 @@ import akka.http.scaladsl.server.{Directive0, Route}
 import akka.stream.SystemMaterializer
 import akka.http.scaladsl.server.Directives._
 
+//#full
 object Main extends App {
   implicit val system = ActorSystem("ticker")
 
@@ -18,6 +19,7 @@ object Main extends App {
   }
   //#authenticationRoute
 
+  //#full
   //#combine-without-authorization
   val concatenated =
     concat(
@@ -26,6 +28,7 @@ object Main extends App {
     )
   //#combine-without-authorization
 
+  //#full
   //#authorizationDirective
   val authorizationDirective: Directive0 =
     headerValueByName("token").flatMap { token =>
@@ -34,6 +37,7 @@ object Main extends App {
     }
   //#authorizationDirective
 
+  //#full
   //#combined
   val combined = concat(
     authenticationRoute,
@@ -43,7 +47,13 @@ object Main extends App {
   )
   //#combined
 
-  //#main
-  Http().newServerAt("127.0.0.1", 8080).bind(combined)
+  //#full
+  Http().newServerAt("127.0.0.1", 8080).bind(concat(
+    authenticationRoute,
+    authorizationDirective {
+      handle(TickerServiceHandler(new TickerServiceImpl))
+    }
+  ))
   //#main
 }
+//#full

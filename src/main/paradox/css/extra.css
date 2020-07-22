@@ -1,3 +1,7 @@
+.reveal pre.full code {
+	max-height: 600px;
+}
+
 img[alt="lightbend-title"] {
   position: fixed;
   bottom: 2em;

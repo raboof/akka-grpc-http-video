@@ -51,7 +51,7 @@ Authentication route:
 
 @@snip[Main.scala](/src/main/scala/Main.scala) { #authenticationRoute }
 
-@@snip[Main.scala](/src/main/scala/Main.scala) { #combine-without-authorization }
+@@snip[Main.scala](/src/main/scala/Main.scala) { #combine-without-authorization .fragment }
 
 @@@
 
@@ -63,6 +63,8 @@ The new login endpoint works:
 $ curl localhost:8080/login
 Psst, please use token XYZ!
 ```
+
+@@@@div { .fragment }
 
 And the gRPC service on the same port also still runs:
 
@@ -79,9 +81,9 @@ $ grpcurl -d '{"name": "foo"}' -plaintext \
   "name": "foo",
 ...
 ```
+@@@@
 
 @@@
-
 
 @@@section
 
@@ -89,7 +91,7 @@ Authorization directive:
 
 @@snip[Main.scala](/src/main/scala/Main.scala) { #authorizationDirective }
 
-@@snip[Main.scala](/src/main/scala/Main.scala) { #combined }
+@@snip[Main.scala](/src/main/scala/Main.scala) { #combined .fragment }
 
 @@@
 
@@ -103,6 +105,8 @@ $ grpcurl -d '{"name": "foo"}' -plaintext \
     -proto ticker.proto \
     localhost:8080 ticker.TickerService.MonitorSymbol
 ```
+
+@@@@div { .fragment } 
 But with a token it does:
 ```
 $ grpcurl -rpc-header "Token: XYZ" \
@@ -118,6 +122,13 @@ $ grpcurl -rpc-header "Token: XYZ" \
   "name": "foo",
 ...
 ```
+@@@@
+
+@@@
+
+@@@section
+
+@@snip[Main.scala](/src/main/scala/Main.scala) { #full .full }
 
 @@@
 
