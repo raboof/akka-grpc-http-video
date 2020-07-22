@@ -41,7 +41,7 @@
 
 Plain gRPC:
 
-@@snip[Main.scala](/src/main/scala/Main.scala) { #plain-grpc }
+@@snip[Main.scala](/src/main/scala/PlainMain.scala) { #plain-grpc }
 
 @@@
 

@@ -7,20 +7,6 @@ import akka.http.scaladsl.server.{Directive0, Route}
 import akka.stream.SystemMaterializer
 import akka.http.scaladsl.server.Directives._
 
-/*
-//#plain-grpc
-object Main extends App {
-    implicit val system = ActorSystem("ticker")
-
-    Http().bindAndHandleAsync(
-       TickerServiceHandler(new TickerServiceImpl),
-        "127.0.0.1",
-        8080
-    )
-}
-//#plain-grpc
-*/
-
 object Main extends App {
   implicit val system = ActorSystem("ticker")
 
@@ -58,10 +44,6 @@ object Main extends App {
   //#combined
 
   //#main
-  Http().bindAndHandleAsync(
-    combined,
-    "127.0.0.1",
-    8080
-  )
+  Http().newServerAt("127.0.0.1", 8080).bind(combined)
   //#main
 }
