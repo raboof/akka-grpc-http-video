@@ -4,8 +4,7 @@ fork := true
 
 enablePlugins(ParadoxRevealPlugin)
 
-resolvers += Resolver.bintrayRepo("akka", "snapshots")
-val akkaHttpVersion = "10.2.0-RC1+68-f23a027a"
+val akkaHttpVersion = "10.2.0-RC2"
 
 scalaVersion := "2.13.2"
 
